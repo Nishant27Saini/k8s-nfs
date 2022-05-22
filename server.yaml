@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nfs
+  name: nfs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs
+    spec:
+      containers:
+        - env:
+            - name: SHARED_DIRECTORY
+              value: /data
+          image: itsthenetwork/nfs-server-alpine:12
+          name: nfs
+          ports:
+            - containerPort: 2049
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /data
+              name: nfs-claim0
+      restartPolicy: Always
+      volumes:
+        - name: nfs-claim0
+          persistentVolumeClaim:
+            claimName: nfs-claim0
